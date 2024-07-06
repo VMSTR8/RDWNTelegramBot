@@ -58,7 +58,7 @@ class EventDetails(Model):
         return self.event_name
 
 
-class EventPolls(Model):
+class EventPollResults(Model):
     id = fields.IntField(pk=True)
     user = fields.ForeignKeyField(
         "models.Users", related_name="polls", on_delete=fields.CASCADE)
