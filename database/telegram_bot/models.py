@@ -67,7 +67,7 @@ class EventPolls(Model):
     visitation = fields.BooleanField()
     reason = fields.TextField(null=True)
     car = fields.BooleanField()
-    hitchhike = fields.BooleanField()
+    hitchhike = fields.BooleanField(null=True)
     start_location = fields.TextField()
 
     class Meta:
