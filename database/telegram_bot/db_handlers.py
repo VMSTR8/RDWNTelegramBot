@@ -361,7 +361,390 @@ class UsersHandler:
 
 
 class EventDetailsHandler:
-    pass
+    """
+    EventDetailsHandler class provides methods to handle operations
+    related to event details in the database.
+
+    Methods
+    -------
+    create_event_details(event_data: dict) -> dict:
+        Creates a new event details record with the provided data
+        and returns information about the created event in dictionary format.
+
+    get_event_details(event_id: int) -> dict:
+        Retrieves all information about the event
+        with the given event_id in dictionary format.
+
+    update_event_name(event_id: int, new_event_name: str) -> dict:
+        Updates the event_name for the event with the specified event_id
+        and returns updated information about the event in dictionary format.
+
+    update_event_link(event_id: int, new_event_link: str) -> dict:
+        Updates the event_link for the event with the specified event_id
+        and returns updated information about the event in dictionary format.
+
+    update_organizer_rules(event_id: int, new_organizer_rules: str) -> dict:
+        Updates the organizer_rules for the event with the specified event_id
+        and returns updated information about the event in dictionary format.
+
+    update_latitude(event_id: int, new_latitude: float) -> dict:
+        Updates the latitude for the event with the specified event_id
+        and returns updated information about the event in dictionary format.
+
+    update_longitude(event_id: int, new_longitude: float) -> dict:
+        Updates the longitude for the event with the specified event_id
+        and returns updated information about the event in dictionary format.
+
+    update_price(event_id: int, new_price: int) -> dict:
+        Updates the price for the event with the specified event_id and returns
+        updated information about the event in dictionary format.
+
+    delete_event(event_id: int) -> None:
+        Deletes the event with the specified event_id from the database.
+    """
+
+    @staticmethod
+    async def _get_event_info(event) -> dict:
+        """
+        Helper method to extract and return event information as a dictionary.
+
+        Parameters
+        ----------
+        event : EventDetails
+            The EventDetails instance.
+
+        Returns
+        -------
+        dict
+            A dictionary containing information about the event.
+        """
+        return {
+            'id': event.id,
+            'event_name': event.event_name,
+            'event_link': event.event_link,
+            'organizer_rules': event.organizer_rules,
+            'latitude': event.latitude,
+            'longitude': event.longitude,
+            'price': event.price,
+            'topic_id': event.topic.id,
+            'topic_name': event.topic.topic_name
+        }
+
+    @staticmethod
+    async def create_event_details(event_data: dict) -> dict:
+        """
+        Creates a new event details record with the provided data
+        and returns information about the created event in dictionary format.
+
+        Parameters
+        ----------
+        event_data : dict
+            A dictionary containing the following keys:
+            - event_name (str): The name of the event.
+            - event_link (str, optional): The link associated
+            with the event (default is None).
+            - organizer_rules (str, optional): Organizer rules
+            for the event (default is None).
+            - latitude (float): Latitude coordinate of the event location.
+            - longitude (float): Longitude coordinate of the event location.
+            - price (int): The price of the event.
+            - topic (int): The topic_id of
+            the associated topic from the Topics table.
+
+        Returns
+        -------
+        dict
+            A dictionary containing all information about the created event.
+
+        Raises
+        ------
+        DoesNotExist
+            If the topic with the given topic_id does not exist.
+        """
+        try:
+            # Retrieve the topic based on topic_id from the event_data
+            topic_id = event_data.pop('topic', None)
+            topic = await Topics.get(topic_id=topic_id)
+        except DoesNotExist:
+            raise DoesNotExist(
+                f'Topic with topic_id {topic_id} does not exist.')
+
+        # Create the event details record
+        event = await EventDetails.create(
+            topic=topic,
+            **event_data
+        )
+
+        return {
+            'id': event.id,
+            'event_name': event.event_name,
+            'event_link': event.event_link,
+            'organizer_rules': event.organizer_rules,
+            'latitude': event.latitude,
+            'longitude': event.longitude,
+            'price': event.price,
+            'topic_id': event.topic_id
+        }
+
+    @staticmethod
+    async def get_event_details(event_id: int) -> dict:
+        """
+        Retrieves all information about the event with
+        the given event_id in dictionary format.
+
+        Parameters
+        ----------
+        event_id : int
+            The ID of the event to retrieve information for.
+
+        Returns
+        -------
+        dict
+            A dictionary containing all information about the event.
+
+        Raises
+        ------
+        DoesNotExist
+            If the event with the given event_id does not exist.
+        """
+        try:
+            event = await EventDetails.get(id=event_id)
+        except DoesNotExist:
+            raise DoesNotExist(f"Event with id {event_id} does not exist.")
+
+        event_info = {
+            'id': event.id,
+            'event_name': event.event_name,
+            'event_link': event.event_link,
+            'organizer_rules': event.organizer_rules,
+            'latitude': event.latitude,
+            'longitude': event.longitude,
+            'price': event.price,
+            'topic_id': event.topic.id,
+            'topic_name': event.topic.topic_name
+        }
+        return event_info
+
+    @staticmethod
+    async def update_event_name(event_id: int, new_event_name: str) -> dict:
+        """
+        Updates the event_name for the event with the specified event_id
+        and returns updated information about the event in dictionary format.
+
+        Parameters
+        ----------
+        event_id : int
+            The ID of the event to update.
+        new_event_name : str
+            The new name for the event.
+
+        Returns
+        -------
+        dict
+            A dictionary containing all updated information about the event.
+
+        Raises
+        ------
+        DoesNotExist
+            If the event with the given event_id does not exist.
+        """
+        try:
+            event = await EventDetails.get(id=event_id)
+        except DoesNotExist:
+            raise DoesNotExist(f"Event with id {event_id} does not exist.")
+
+        event.event_name = new_event_name
+        await event.save()
+
+        return await EventDetailsHandler._get_event_info(event)
+
+    @staticmethod
+    async def update_event_link(event_id: int, new_event_link: str) -> dict:
+        """
+        Updates the event_link for the event with the specified event_id
+        and returns updated information about the event in dictionary format.
+
+        Parameters
+        ----------
+        event_id : int
+            The ID of the event to update.
+        new_event_link : str
+            The new link for the event.
+
+        Returns
+        -------
+        dict
+            A dictionary containing all updated information about the event.
+
+        Raises
+        ------
+        DoesNotExist
+            If the event with the given event_id does not exist.
+        """
+        try:
+            event = await EventDetails.get(id=event_id)
+        except DoesNotExist:
+            raise DoesNotExist(f"Event with id {event_id} does not exist.")
+
+        event.event_link = new_event_link
+        await event.save()
+
+        return await EventDetailsHandler._get_event_info(event)
+
+    @staticmethod
+    async def update_organizer_rules(
+            event_id: int, new_organizer_rules: str) -> dict:
+        """
+        Updates the organizer_rules for the event with the specified event_id
+        and returns updated information about the event in dictionary format.
+
+        Parameters
+        ----------
+        event_id : int
+            The ID of the event to update.
+        new_organizer_rules : str
+            The new organizer rules for the event.
+
+        Returns
+        -------
+        dict
+            A dictionary containing all updated information about the event.
+
+        Raises
+        ------
+        DoesNotExist
+            If the event with the given event_id does not exist.
+        """
+        try:
+            event = await EventDetails.get(id=event_id)
+        except DoesNotExist:
+            raise DoesNotExist(f"Event with id {event_id} does not exist.")
+
+        event.organizer_rules = new_organizer_rules
+        await event.save()
+
+        return await EventDetailsHandler._get_event_info(event)
+
+    @staticmethod
+    async def update_latitude(event_id: int, new_latitude: float) -> dict:
+        """
+        Updates the latitude for the event with the specified event_id
+        and returns updated information about the event in dictionary format.
+
+        Parameters
+        ----------
+        event_id : int
+            The ID of the event to update.
+        new_latitude : float
+            The new latitude coordinate for the event.
+
+        Returns
+        -------
+        dict
+            A dictionary containing all updated information about the event.
+
+        Raises
+        ------
+        DoesNotExist
+            If the event with the given event_id does not exist.
+        """
+        try:
+            event = await EventDetails.get(id=event_id)
+        except DoesNotExist:
+            raise DoesNotExist(f"Event with id {event_id} does not exist.")
+
+        event.latitude = new_latitude
+        await event.save()
+
+        return await EventDetailsHandler._get_event_info(event)
+
+    @staticmethod
+    async def update_longitude(event_id: int, new_longitude: float) -> dict:
+        """
+        Updates the longitude for the event with the specified event_id
+        and returns updated information about the event in dictionary format.
+
+        Parameters
+        ----------
+        event_id : int
+            The ID of the event to update.
+        new_longitude : float
+            The new longitude coordinate for the event.
+
+        Returns
+        -------
+        dict
+            A dictionary containing all updated information about the event.
+
+        Raises
+        ------
+        DoesNotExist
+            If the event with the given event_id does not exist.
+        """
+        try:
+            event = await EventDetails.get(id=event_id)
+        except DoesNotExist:
+            raise DoesNotExist(f"Event with id {event_id} does not exist.")
+
+        event.longitude = new_longitude
+        await event.save()
+
+        return await EventDetailsHandler._get_event_info(event)
+
+    @staticmethod
+    async def update_price(event_id: int, new_price: int) -> dict:
+        """
+        Updates the price for the event with the specified event_id and returns
+        updated information about the event in dictionary format.
+
+        Parameters
+        ----------
+        event_id : int
+            The ID of the event to update.
+        new_price : int
+            The new price for the event.
+
+        Returns
+        -------
+        dict
+            A dictionary containing all updated information about the event.
+
+        Raises
+        ------
+        DoesNotExist
+            If the event with the given event_id does not exist.
+        """
+        try:
+            event = await EventDetails.get(id=event_id)
+        except DoesNotExist:
+            raise DoesNotExist(f"Event with id {event_id} does not exist.")
+
+        event.price = new_price
+        await event.save()
+
+        return await EventDetailsHandler._get_event_info(event)
+
+    @staticmethod
+    async def delete_event(event_id: int) -> None:
+        """
+        Deletes the event with the specified event_id from the database.
+
+        Parameters
+        ----------
+        event_id : int
+            The ID of the event to delete.
+
+        Raises
+        ------
+        DoesNotExist
+            If the event with the given event_id does not exist.
+        """
+        try:
+            event = await EventDetails.get(id=event_id)
+        except DoesNotExist:
+            raise DoesNotExist(f"Event with id {event_id} does not exist.")
+
+        await event.delete()
 
 
 class EventPollsHandler:
