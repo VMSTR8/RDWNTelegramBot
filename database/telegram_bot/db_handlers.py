@@ -1,5 +1,7 @@
 from datetime import datetime
 
+from typing import Optional, Union
+
 from tortoise.exceptions import (
     IntegrityError,
     DoesNotExist
@@ -774,4 +776,152 @@ class EventDetailsHandler:
 
 
 class EventPollsHandler:
-    pass
+    """
+    EventPollsHandler class provides methods to handle
+    operations related to event polls in the database.
+
+    Methods
+    -------
+    create_poll(poll_data: dict) -> dict:
+        Creates a new poll record with the provided data
+        and returns information about the created poll in dictionary format.
+    get_poll_by_user_id(user_id: int) -> dict:
+        Retrieves poll data for the given user_id.
+        Returns None if the user has not taken the poll.
+    delete_poll(poll_id: int) -> None:
+        Deletes the poll with the specified poll_id from the database.
+    """
+
+    @staticmethod
+    async def _get_poll_info(poll) -> dict:
+        """
+        Helper method to extract and return poll information as a dictionary.
+
+        Parameters
+        ----------
+        poll : EventPolls
+            The EventPolls instance.
+
+        Returns
+        -------
+        dict
+            A dictionary containing information about the poll.
+        """
+        return {
+            'id': poll.id,
+            'user_id': poll.user.id,
+            'event_id': poll.event.id,
+            'visitation': poll.visitation,
+            'reason': poll.reason,
+            'car': poll.car,
+            'hitchhike': poll.hitchhike,
+            'start_location': poll.start_location
+        }
+
+    @staticmethod
+    async def create_poll(poll_data: dict) -> dict:
+        """
+        Creates a new poll record with the provided data
+        and returns information about the created poll in dictionary format.
+
+        Parameters
+        ----------
+        poll_data : dict
+            A dictionary containing poll details:
+            - user_id (int): The user id of the poll
+            - event_id (int): The event id of the poll
+            - visitation (bool): The event visitation status
+            - reason (str, optional): Why user can not visit the event
+            - car (bool): Availability of auto
+            - hitchhike (bool, optional): Being able to give someone a ride
+            - start_location (str): Start location of the user
+
+        Returns
+        -------
+        dict
+            A dictionary containing all information about the created poll.
+
+        Raises
+        ------
+        DoesNotExist
+            If the user or event with the given IDs does not exist.
+        """
+        try:
+            user = await Users.get(id=poll_data['user_id'])
+        except DoesNotExist:
+            raise DoesNotExist(
+                f"User with id {poll_data['user_id']} does not exist.")
+
+        try:
+            event = await EventDetails.get(id=poll_data['event_id'])
+        except DoesNotExist:
+            raise DoesNotExist(
+                f"Event with id {poll_data['event_id']} does not exist.")
+
+        poll = await EventPolls.create(
+            user=user,
+            event=event,
+            visitation=poll_data['visitation'],
+            reason=poll_data.get('reason'),
+            car=poll_data['car'],
+            hitchhike=poll_data.get('hitchhike'),
+            start_location=poll_data['start_location']
+        )
+
+        return await EventPollsHandler._get_poll_info(poll)
+
+    @staticmethod
+    async def get_poll_by_user_id(user_id: int) -> Optional[Union[dict, None]]:
+        """
+        Retrieves poll data for the given user_id.
+        Returns None if the user has not taken the poll.
+
+        Parameters
+        ----------
+        user_id : int
+            The ID of the user whose poll data is to be retrieved.
+
+        Returns
+        -------
+        dict or None
+            A dictionary containing poll information if
+            the user has taken the poll, otherwise None.
+
+        Raises
+        ------
+        DoesNotExist
+            If the user with the given user_id does not exist.
+        """
+        try:
+            user = await Users.get(id=user_id)
+        except DoesNotExist:
+            raise DoesNotExist(f'User with id {user_id} does not exist.')
+
+        try:
+            poll = await EventPolls.get(user=user)
+        except DoesNotExist:
+            return None
+
+        return await EventPollsHandler._get_poll_info(poll)
+
+    @staticmethod
+    async def delete_poll(poll_id: int) -> None:
+        """
+        Deletes the poll with the specified poll_id from the database.
+
+        Parameters
+        ----------
+        poll_id : int
+            The ID of the poll to delete.
+
+        Raises
+        ------
+        DoesNotExist
+            If the poll with the given poll_id does not exist.
+        """
+        try:
+            poll = await EventPolls.get(id=poll_id)
+        except DoesNotExist:
+            raise DoesNotExist(f'Poll with id {poll_id} does not exist.')
+
+        await poll.delete()
