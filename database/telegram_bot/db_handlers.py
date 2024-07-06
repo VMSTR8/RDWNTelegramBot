@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from tortoise.exceptions import (
     IntegrityError,
     DoesNotExist
@@ -399,6 +401,10 @@ class EventDetailsHandler:
         Updates the price for the event with the specified event_id and returns
         updated information about the event in dictionary format.
 
+    update_expire_date(event_id: int, new_expire_date: datetime) -> dict:
+        Updates the expire_date for the event with the specified event_id
+        and returns updated information about the event in dictionary format.
+
     delete_event(event_id: int) -> None:
         Deletes the event with the specified event_id from the database.
     """
@@ -426,6 +432,7 @@ class EventDetailsHandler:
             'latitude': event.latitude,
             'longitude': event.longitude,
             'price': event.price,
+            'expire_date': event.expire_date,
             'topic_id': event.topic.id,
             'topic_name': event.topic.topic_name
         }
@@ -448,6 +455,7 @@ class EventDetailsHandler:
             - latitude (float): Latitude coordinate of the event location.
             - longitude (float): Longitude coordinate of the event location.
             - price (int): The price of the event.
+            - expire_date (str): The expiration date of the event
             - topic (int): The topic_id of
             the associated topic from the Topics table.
 
@@ -462,29 +470,24 @@ class EventDetailsHandler:
             If the topic with the given topic_id does not exist.
         """
         try:
-            # Retrieve the topic based on topic_id from the event_data
             topic_id = event_data.pop('topic', None)
             topic = await Topics.get(topic_id=topic_id)
         except DoesNotExist:
             raise DoesNotExist(
                 f'Topic with topic_id {topic_id} does not exist.')
 
-        # Create the event details record
         event = await EventDetails.create(
             topic=topic,
-            **event_data
+            event_name=event_data['event_name'],
+            event_link=event_data.get('event_link'),
+            organizer_rules=event_data.get('organizer_rules'),
+            latitude=event_data['latitude'],
+            longitude=event_data['longitude'],
+            price=event_data['price'],
+            expire_date=event_data['expire_date']
         )
 
-        return {
-            'id': event.id,
-            'event_name': event.event_name,
-            'event_link': event.event_link,
-            'organizer_rules': event.organizer_rules,
-            'latitude': event.latitude,
-            'longitude': event.longitude,
-            'price': event.price,
-            'topic_id': event.topic_id
-        }
+        return await EventDetailsHandler._get_event_info(event)
 
     @staticmethod
     async def get_event_details(event_id: int) -> dict:
@@ -512,18 +515,7 @@ class EventDetailsHandler:
         except DoesNotExist:
             raise DoesNotExist(f'Event with id {event_id} does not exist.')
 
-        event_info = {
-            'id': event.id,
-            'event_name': event.event_name,
-            'event_link': event.event_link,
-            'organizer_rules': event.organizer_rules,
-            'latitude': event.latitude,
-            'longitude': event.longitude,
-            'price': event.price,
-            'topic_id': event.topic.id,
-            'topic_name': event.topic.topic_name
-        }
-        return event_info
+        return await EventDetailsHandler._get_event_info(event)
 
     @staticmethod
     async def update_event_name(event_id: int, new_event_name: str) -> dict:
@@ -720,6 +712,40 @@ class EventDetailsHandler:
             raise DoesNotExist(f'Event with id {event_id} does not exist.')
 
         event.price = new_price
+        await event.save()
+
+        return await EventDetailsHandler._get_event_info(event)
+
+    @staticmethod
+    async def update_expire_date(
+            event_id: int, new_expire_date: datetime) -> dict:
+        """
+        Updates the expire_date for the event with the specified event_id
+        and returns updated information about the event in dictionary format.
+
+        Parameters
+        ----------
+        event_id : int
+            The ID of the event to update.
+        new_expire_date : datetime
+            The new expire date for the event.
+
+        Returns
+        -------
+        dict
+            A dictionary containing all updated information about the event.
+
+        Raises
+        ------
+        DoesNotExist
+            If the event with the given event_id does not exist.
+        """
+        try:
+            event = await EventDetails.get(id=event_id)
+        except DoesNotExist:
+            raise DoesNotExist(f'Event with id {event_id} does not exist.')
+
+        event.expire_date = new_expire_date
         await event.save()
 
         return await EventDetailsHandler._get_event_info(event)
