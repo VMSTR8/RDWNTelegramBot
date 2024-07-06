@@ -21,6 +21,10 @@ class UsersHandler:
     is_user_admin(telegram_id: int) -> bool:
         Checks if the user with the given telegram_id is an admin.
 
+    get_user_info(user_id: int) -> dict:
+        Retrieves all information about the user with the given user_id
+        in a dictionary format.
+
     add_users(telegram_ids: list[int]) -> None:
         Adds a list of telegram_ids to the database, skipping existing users.
 
@@ -30,14 +34,8 @@ class UsersHandler:
     update_callsign(telegram_id: int, new_callsign: str) -> Users:
         Updates the callsign of the user with the given telegram_id.
 
-    get_reserved(telegram_id: int) -> bool:
-        Gets the reserved status of the user with the given telegram_id.
-
     update_reserved(telegram_id: int) -> Users:
         Toggles the reserved status of the user with the given telegram_id.
-
-    get_warn(telegram_id: int) -> int:
-        Gets the warn count of the user with the given telegram_id.
 
     update_warn(telegram_id: int, warn: int) -> Users:
         Updates the warn count of the user with the given telegram_id.
