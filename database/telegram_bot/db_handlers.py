@@ -11,6 +11,141 @@ from models import (
 )
 
 
+class TopicsHandler:
+    """
+    TopicsHandler class provides methods to handle operations
+    related to topics in the database.
+
+    Methods
+    -------
+    create_topic(topic_id: int, topic_name: str) -> dict:
+        Creates a new topic with the specified topic_id and topic_name,
+        and returns information about the created topic in dictionary format.
+
+    get_topic_info(topic_id: int) -> dict:
+        Retrieves information about the topic with
+        the given topic_id in dictionary format.
+
+    rename_topic(topic_id: int, new_topic_name: str) -> None:
+        Renames the topic with the specified topic_id to the new_topic_name.
+
+    delete_topic(topic_id: int) -> None:
+        Deletes the topic with the specified topic_id.
+    """
+
+    @staticmethod
+    async def create_topic(topic_id: int, topic_name: str) -> dict:
+        """
+        Creates a new topic with the specified topic_id and topic_name,
+        and returns information about the created topic in dictionary format.
+
+        Parameters
+        ----------
+        topic_id : int
+            The ID of the topic to create.
+        topic_name : str
+            The name of the topic.
+
+        Returns
+        -------
+        dict
+            A dictionary containing all information about the created topic.
+
+        Raises
+        ------
+        DoesNotExist
+            If the topic with the given topic_id does not exist.
+        """
+        topic = await Topics.create(topic_id=topic_id, topic_name=topic_name)
+
+        return {
+            'id': topic.id,
+            'topic_id': topic.topic_id,
+            'topic_name': topic.topic_name
+        }
+
+    @staticmethod
+    async def get_topic_info(topic_id: int) -> dict:
+        """
+        Retrieves information about the topic with
+        the given topic_id in dictionary format.
+
+        Parameters
+        ----------
+        topic_id : int
+            The ID of the topic to retrieve information for.
+
+        Returns
+        -------
+        dict
+            A dictionary containing all information about the topic.
+
+        Raises
+        ------
+        DoesNotExist
+            If the topic with the given topic_id does not exist.
+        """
+        topic = await Topics.filter(topic_id=topic_id).first()
+        if not topic:
+            raise DoesNotExist(
+                f"Topic with topic_id {topic_id} does not exist.")
+
+        topic_info = {
+            'id': topic.id,
+            'topic_id': topic.topic_id,
+            'topic_name': topic.topic_name
+        }
+
+        return topic_info
+
+    @staticmethod
+    async def rename_topic(topic_id: int, new_topic_name: str) -> None:
+        """
+        Renames the topic with the specified topic_id to the new_topic_name.
+
+        Parameters
+        ----------
+        topic_id : int
+            The ID of the topic to rename.
+        new_topic_name : str
+            The new name for the topic.
+
+        Raises
+        ------
+        DoesNotExist
+            If the topic with the given topic_id does not exist.
+        """
+        topic = await Topics.filter(topic_id=topic_id).first()
+        if not topic:
+            raise DoesNotExist(
+                f"Topic with topic_id {topic_id} does not exist.")
+
+        topic.topic_name = new_topic_name
+        await topic.save()
+
+    @staticmethod
+    async def delete_topic(topic_id: int) -> None:
+        """
+        Deletes the topic with the specified topic_id.
+
+        Parameters
+        ----------
+        topic_id : int
+            The ID of the topic to delete.
+
+        Raises
+        ------
+        DoesNotExist
+            If the topic with the given topic_id does not exist.
+        """
+        topic = await Topics.filter(topic_id=topic_id).first()
+        if not topic:
+            raise DoesNotExist(
+                f"Topic with topic_id {topic_id} does not exist.")
+
+        await topic.delete()
+
+
 class UsersHandler:
     """
     UsersHandler class provides methods to handle operations
@@ -168,31 +303,6 @@ class UsersHandler:
         await user.save()
         return user
 
-    # @staticmethod
-    # async def get_reserved(telegram_id: int) -> bool:
-    #     """
-    #     Gets the reserved status of the user with the given telegram_id.
-
-    #     Parameters
-    #     ----------
-    #     telegram_id : int
-    #         The ID of the user to get the reserved status for.
-
-    #     Returns
-    #     -------
-    #     bool
-    #         The reserved status of the user.
-
-    #     Raises
-    #     ------
-    #     DoesNotExist
-    #         If the user with the given telegram_id does not exist.
-    #     """
-    #     user = await Users.filter(telegram_id=telegram_id).first()
-    #     if not user:
-    #         raise DoesNotExist(f'User with id {telegram_id} does not exist.')
-    #     return user.reserved
-
     @staticmethod
     async def update_reserved(telegram_id: int) -> Users:
         """
@@ -219,31 +329,6 @@ class UsersHandler:
         user.reserved = not user.reserved
         await user.save()
         return user
-
-    # @staticmethod
-    # async def get_warn(telegram_id: int) -> int:
-    #     """
-    #     Gets the warn count of the user with the given telegram_id.
-
-    #     Parameters
-    #     ----------
-    #     telegram_id : int
-    #         The ID of the user to get the warn count for.
-
-    #     Returns
-    #     -------
-    #     int
-    #         The warn count of the user.
-
-    #     Raises
-    #     ------
-    #     DoesNotExist
-    #         If the user with the given telegram_id does not exist.
-    #     """
-    #     user = await Users.filter(telegram_id=telegram_id).first()
-    #     if not user:
-    #         raise DoesNotExist(f'User with id {telegram_id} does not exist.')
-    #     return user.warn
 
     @staticmethod
     async def update_warn(telegram_id: int, warn: int) -> Users:
@@ -273,3 +358,11 @@ class UsersHandler:
         user.warn = warn
         await user.save()
         return user
+
+
+class EventDetailsHandler:
+    pass
+
+
+class EventPollsHandler:
+    pass
