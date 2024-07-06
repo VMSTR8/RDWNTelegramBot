@@ -88,7 +88,7 @@ class TopicsHandler:
         topic = await Topics.filter(topic_id=topic_id).first()
         if not topic:
             raise DoesNotExist(
-                f"Topic with topic_id {topic_id} does not exist.")
+                f'Topic with topic_id {topic_id} does not exist.')
 
         topic_info = {
             'id': topic.id,
@@ -118,7 +118,7 @@ class TopicsHandler:
         topic = await Topics.filter(topic_id=topic_id).first()
         if not topic:
             raise DoesNotExist(
-                f"Topic with topic_id {topic_id} does not exist.")
+                f'Topic with topic_id {topic_id} does not exist.')
 
         topic.topic_name = new_topic_name
         await topic.save()
@@ -141,7 +141,7 @@ class TopicsHandler:
         topic = await Topics.filter(topic_id=topic_id).first()
         if not topic:
             raise DoesNotExist(
-                f"Topic with topic_id {topic_id} does not exist.")
+                f'Topic with topic_id {topic_id} does not exist.')
 
         await topic.delete()
 
@@ -510,7 +510,7 @@ class EventDetailsHandler:
         try:
             event = await EventDetails.get(id=event_id)
         except DoesNotExist:
-            raise DoesNotExist(f"Event with id {event_id} does not exist.")
+            raise DoesNotExist(f'Event with id {event_id} does not exist.')
 
         event_info = {
             'id': event.id,
@@ -551,7 +551,7 @@ class EventDetailsHandler:
         try:
             event = await EventDetails.get(id=event_id)
         except DoesNotExist:
-            raise DoesNotExist(f"Event with id {event_id} does not exist.")
+            raise DoesNotExist('Event with id {event_id} does not exist.')
 
         event.event_name = new_event_name
         await event.save()
@@ -584,7 +584,7 @@ class EventDetailsHandler:
         try:
             event = await EventDetails.get(id=event_id)
         except DoesNotExist:
-            raise DoesNotExist(f"Event with id {event_id} does not exist.")
+            raise DoesNotExist(f'Event with id {event_id} does not exist.')
 
         event.event_link = new_event_link
         await event.save()
@@ -618,7 +618,7 @@ class EventDetailsHandler:
         try:
             event = await EventDetails.get(id=event_id)
         except DoesNotExist:
-            raise DoesNotExist(f"Event with id {event_id} does not exist.")
+            raise DoesNotExist(f'Event with id {event_id} does not exist.')
 
         event.organizer_rules = new_organizer_rules
         await event.save()
@@ -651,7 +651,7 @@ class EventDetailsHandler:
         try:
             event = await EventDetails.get(id=event_id)
         except DoesNotExist:
-            raise DoesNotExist(f"Event with id {event_id} does not exist.")
+            raise DoesNotExist(f'Event with id {event_id} does not exist.')
 
         event.latitude = new_latitude
         await event.save()
@@ -684,7 +684,7 @@ class EventDetailsHandler:
         try:
             event = await EventDetails.get(id=event_id)
         except DoesNotExist:
-            raise DoesNotExist(f"Event with id {event_id} does not exist.")
+            raise DoesNotExist(f'Event with id {event_id} does not exist.')
 
         event.longitude = new_longitude
         await event.save()
@@ -717,7 +717,7 @@ class EventDetailsHandler:
         try:
             event = await EventDetails.get(id=event_id)
         except DoesNotExist:
-            raise DoesNotExist(f"Event with id {event_id} does not exist.")
+            raise DoesNotExist(f'Event with id {event_id} does not exist.')
 
         event.price = new_price
         await event.save()
@@ -742,7 +742,7 @@ class EventDetailsHandler:
         try:
             event = await EventDetails.get(id=event_id)
         except DoesNotExist:
-            raise DoesNotExist(f"Event with id {event_id} does not exist.")
+            raise DoesNotExist(f'Event with id {event_id} does not exist.')
 
         await event.delete()
 
