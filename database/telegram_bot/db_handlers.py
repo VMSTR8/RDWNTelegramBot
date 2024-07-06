@@ -7,7 +7,7 @@ from tortoise.exceptions import (
     DoesNotExist
 )
 
-from models import (
+from database.telegram_bot.models import (
     Topics,
     Users,
     EventDetails,
