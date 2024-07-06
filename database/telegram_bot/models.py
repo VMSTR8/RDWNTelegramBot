@@ -49,6 +49,7 @@ class EventDetails(Model):
         ]
     )
     price = fields.IntField()
+    expire_date = fields.DatetimeField()
 
     class Meta:
         table = 'Events'
