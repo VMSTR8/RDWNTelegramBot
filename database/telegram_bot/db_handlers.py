@@ -455,7 +455,7 @@ class EventDetailsHandler:
             - latitude (float): Latitude coordinate of the event location.
             - longitude (float): Longitude coordinate of the event location.
             - price (int): The price of the event.
-            - expire_date (str): The expiration date of the event
+            - expire_date (str): The expiration date of the event.
             - topic (int): The topic_id of
             the associated topic from the Topics table.
 
