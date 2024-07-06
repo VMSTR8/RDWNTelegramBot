@@ -11,7 +11,7 @@ from database.telegram_bot.models import (
     Topics,
     Users,
     EventDetails,
-    EventPolls,
+    EventPollResults,
 )
 
 
@@ -775,9 +775,9 @@ class EventDetailsHandler:
         await event.delete()
 
 
-class EventPollsHandler:
+class EventPollResultsHandler:
     """
-    EventPollsHandler class provides methods to handle
+    EventPollResultsHandler class provides methods to handle
     operations related to event polls in the database.
 
     Methods
@@ -795,15 +795,15 @@ class EventPollsHandler:
     """
 
     @staticmethod
-    async def _get_poll_results_info(poll) -> dict:
+    async def _get_poll_results_info(poll_result) -> dict:
         """
         Helper method to extract and return poll results
         information as a dictionary.
 
         Parameters
         ----------
-        poll : EventPolls
-            The EventPolls instance.
+        poll : EventPollResults
+            The EventPollResults instance.
 
         Returns
         -------
@@ -811,26 +811,26 @@ class EventPollsHandler:
             A dictionary containing information about the poll results.
         """
         return {
-            'id': poll.id,
-            'user_id': poll.user.id,
-            'event_id': poll.event.id,
-            'visitation': poll.visitation,
-            'reason': poll.reason,
-            'car': poll.car,
-            'hitchhike': poll.hitchhike,
-            'start_location': poll.start_location
+            'id': poll_result.id,
+            'user_id': poll_result.user.id,
+            'event_id': poll_result.event.id,
+            'visitation': poll_result.visitation,
+            'reason': poll_result.reason,
+            'car': poll_result.car,
+            'hitchhike': poll_result.hitchhike,
+            'start_location': poll_result.start_location
         }
 
     @staticmethod
-    async def create_poll_results(poll_data: dict) -> dict:
+    async def create_poll_results(poll_results_data: dict) -> dict:
         """
-        Creates a new poll record with the provided data
+        Creates a new poll results record with the provided data
         and returns information about the created poll results
         in dictionary format.
 
         Parameters
         ----------
-        poll_data : dict
+        poll_results_data : dict
             A dictionary containing poll details:
             - user_id (int): The user id of the poll
             - event_id (int): The event id of the poll
@@ -852,28 +852,28 @@ class EventPollsHandler:
             If the user or event with the given IDs does not exist.
         """
         try:
-            user = await Users.get(id=poll_data['user_id'])
+            user = await Users.get(id=poll_results_data['user_id'])
         except DoesNotExist:
             raise DoesNotExist(
-                f"User with id {poll_data['user_id']} does not exist.")
+                f"User with id {poll_results_data['user_id']} does not exist.")
 
         try:
-            event = await EventDetails.get(id=poll_data['event_id'])
+            event = await EventDetails.get(id=poll_results_data['event_id'])
         except DoesNotExist:
             raise DoesNotExist(
-                f"Event with id {poll_data['event_id']} does not exist.")
+                f"Event with id {poll_results_data['event_id']} does not exist.")
 
-        poll = await EventPolls.create(
+        poll_result = await EventPollResults.create(
             user=user,
             event=event,
-            visitation=poll_data['visitation'],
-            reason=poll_data.get('reason'),
-            car=poll_data['car'],
-            hitchhike=poll_data.get('hitchhike'),
-            start_location=poll_data['start_location']
+            visitation=poll_results_data['visitation'],
+            reason=poll_results_data.get('reason'),
+            car=poll_results_data['car'],
+            hitchhike=poll_results_data.get('hitchhike'),
+            start_location=poll_results_data['start_location']
         )
 
-        return await EventPollsHandler._get_poll_results_info(poll)
+        return await EventPollResults._get_poll_results_info(poll_result)
 
     @staticmethod
     async def get_poll_results_by_user_id(
@@ -904,31 +904,31 @@ class EventPollsHandler:
             raise DoesNotExist(f'User with id {user_id} does not exist.')
 
         try:
-            poll = await EventPolls.get(user=user)
+            poll_result = await EventPollResults.get(user=user)
         except DoesNotExist:
             return None
 
-        return await EventPollsHandler._get_poll_results_info(poll)
+        return await EventPollResults._get_poll_results_info(poll_result)
 
     @staticmethod
-    async def delete_poll_results(poll_id: int) -> None:
+    async def delete_poll_results(poll_result_id: int) -> None:
         """
         Deletes the poll results with the specified
-        poll_id from the database.
+        poll_result_id from the database.
 
         Parameters
         ----------
-        poll_id : int
+        poll_result_id : int
             The ID of the poll results to delete.
 
         Raises
         ------
         DoesNotExist
-            If the poll results with the given poll_id does not exist.
+            If the poll results with the given poll_result_id does not exist.
         """
         try:
-            poll = await EventPolls.get(id=poll_id)
+            poll_result = await EventPollResults.get(id=poll_result_id)
         except DoesNotExist:
-            raise DoesNotExist(f'Poll with id {poll_id} does not exist.')
+            raise DoesNotExist(f'Poll with id {poll_result_id} does not exist.')
 
-        await poll.delete()
+        await poll_result.delete()
