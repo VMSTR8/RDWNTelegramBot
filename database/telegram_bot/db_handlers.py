@@ -782,20 +782,23 @@ class EventPollsHandler:
 
     Methods
     -------
-    create_poll(poll_data: dict) -> dict:
+    create_poll_results(poll_data: dict) -> dict:
         Creates a new poll record with the provided data
         and returns information about the created poll in dictionary format.
-    get_poll_by_user_id(user_id: int) -> dict:
+
+    get_poll_results_by_user_id(user_id: int) -> dict:
         Retrieves poll data for the given user_id.
         Returns None if the user has not taken the poll.
-    delete_poll(poll_id: int) -> None:
+
+    delete_poll_results(poll_id: int) -> None:
         Deletes the poll with the specified poll_id from the database.
     """
 
     @staticmethod
-    async def _get_poll_info(poll) -> dict:
+    async def _get_poll_results_info(poll) -> dict:
         """
-        Helper method to extract and return poll information as a dictionary.
+        Helper method to extract and return poll results
+        information as a dictionary.
 
         Parameters
         ----------
@@ -805,7 +808,7 @@ class EventPollsHandler:
         Returns
         -------
         dict
-            A dictionary containing information about the poll.
+            A dictionary containing information about the poll results.
         """
         return {
             'id': poll.id,
@@ -819,10 +822,11 @@ class EventPollsHandler:
         }
 
     @staticmethod
-    async def create_poll(poll_data: dict) -> dict:
+    async def create_poll_results(poll_data: dict) -> dict:
         """
         Creates a new poll record with the provided data
-        and returns information about the created poll in dictionary format.
+        and returns information about the created poll results
+        in dictionary format.
 
         Parameters
         ----------
@@ -839,7 +843,8 @@ class EventPollsHandler:
         Returns
         -------
         dict
-            A dictionary containing all information about the created poll.
+            A dictionary containing all information
+            about the created poll results.
 
         Raises
         ------
@@ -868,12 +873,13 @@ class EventPollsHandler:
             start_location=poll_data['start_location']
         )
 
-        return await EventPollsHandler._get_poll_info(poll)
+        return await EventPollsHandler._get_poll_results_info(poll)
 
     @staticmethod
-    async def get_poll_by_user_id(user_id: int) -> Optional[Union[dict, None]]:
+    async def get_poll_results_by_user_id(
+            user_id: int) -> Optional[Union[dict, None]]:
         """
-        Retrieves poll data for the given user_id.
+        Retrieves poll results data for the given user_id.
         Returns None if the user has not taken the poll.
 
         Parameters
@@ -884,7 +890,7 @@ class EventPollsHandler:
         Returns
         -------
         dict or None
-            A dictionary containing poll information if
+            A dictionary containing poll results information if
             the user has taken the poll, otherwise None.
 
         Raises
@@ -902,22 +908,23 @@ class EventPollsHandler:
         except DoesNotExist:
             return None
 
-        return await EventPollsHandler._get_poll_info(poll)
+        return await EventPollsHandler._get_poll_results_info(poll)
 
     @staticmethod
-    async def delete_poll(poll_id: int) -> None:
+    async def delete_poll_results(poll_id: int) -> None:
         """
-        Deletes the poll with the specified poll_id from the database.
+        Deletes the poll results with the specified
+        poll_id from the database.
 
         Parameters
         ----------
         poll_id : int
-            The ID of the poll to delete.
+            The ID of the poll results to delete.
 
         Raises
         ------
         DoesNotExist
-            If the poll with the given poll_id does not exist.
+            If the poll results with the given poll_id does not exist.
         """
         try:
             poll = await EventPolls.get(id=poll_id)
