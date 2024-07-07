@@ -6,39 +6,42 @@ from telegram import (
 
 from telegram.ext import ContextTypes
 
-from database.telegram_bot.db_handlers import UsersHandler
+from database.schema.db_handlers import UsersHandler
 
+from telegram_handlers.decorators import (
+    private_chat_only,
+    user_is_admin,
+)
 
+from states import (
+    SELECTING_ACTION,
+    MANAGE_EVENTS,
+    MANAGE_PARTICIPANTS,
+    END
+)
+
+@private_chat_only
+@user_is_admin
 async def admin(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    user = update.message.from_user.id
-    admin = await UsersHandler.is_user_admin(telegram_id=user)
-    if admin:
-        text = 'Заглушка'
+    text = 'Заглушка'
 
-        buttons = [
-            [
-                InlineKeyboardButton(
-                    text='События', callback_data=str('СОБЫТИЯ-ЗАГЛУШКА')),
-                InlineKeyboardButton(
-                    text='Участники', callback_data=str('УЧАСТНИКИ-ЗАГЛУШКА')),
+    buttons = [
+        [
+            InlineKeyboardButton(
+                text='События', callback_data=str(MANAGE_EVENTS)),
+            InlineKeyboardButton(
+                text='Участники', callback_data=str(MANAGE_PARTICIPANTS)),
 
-            ]
         ]
+    ]
 
-        keyboard = InlineKeyboardMarkup(buttons)
+    keyboard = InlineKeyboardMarkup(buttons)
 
-        save_data = await update.message.reply_text(
-            text=text,
-            reply_markup=keyboard
-        )
-
-        context.user_data['admin_message_id'] = int(save_data.message_id)
-
-        return 'МЕНЮ-ЗАГЛУШКА'
-
-    not_admin = 'Команда недоступна, у тебя нет прав администратора.'
-    await update.message.reply_text(
-        text=not_admin
+    save_data = await update.message.reply_text(
+        text=text,
+        reply_markup=keyboard
     )
 
-    return 'END-ЗАГЛУШКА'
+    context.user_data['admin_message_id'] = int(save_data.message_id)
+
+    return SELECTING_ACTION
