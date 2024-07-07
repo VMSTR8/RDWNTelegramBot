@@ -18,7 +18,7 @@ async def init() -> None:
     """
     await Tortoise.init(
         db_url=config.DATABASE_URL,
-        modules={'models': ['database.telegram_bot.models', 'aerich.models']}
+        modules={'models': ['database.schema.models', 'aerich.models']}
     )
 
     await Tortoise.generate_schemas()
