@@ -18,7 +18,3 @@ async def start(
     await update.message.reply_html(
         f'Проверка {user.mention_html()}'
     )
-
-
-async def about():
-    pass
