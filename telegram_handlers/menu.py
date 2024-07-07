@@ -6,7 +6,10 @@ from telegram import (
 
 from telegram.ext import ContextTypes
 
+from telegram_handlers.decorators import private_chat_only
 
+
+@private_chat_only
 async def start(
         update: Update,
         context: ContextTypes.DEFAULT_TYPE
