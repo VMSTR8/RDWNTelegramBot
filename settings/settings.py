@@ -10,3 +10,5 @@ if os.path.exists(dotenv_path):
 BOT_TOKEN = os.environ.get('BOT_TOKEN')
 
 DATABASE_URL = os.environ.get('DATABASE_URL')
+
+TELEGRAM_GROUP_ID = os.environ.get('TELEGRAM_GROUP_ID')
